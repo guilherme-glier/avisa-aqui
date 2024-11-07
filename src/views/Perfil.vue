@@ -3,22 +3,39 @@
     <div class="logo-container">
       <img src="../assets/logo.png" alt="Logo" class="logo" />
     </div>
-      <div class="perfil-info">
-          <div class="info-item">
-              <b>Nome:</b> <span>{{ nome }}</span>
-          </div>
-          <div class="info-item">
-              <b>Endereço:</b> <span>{{ endereco }}</span>
-          </div>
+    <div class="perfil-info">
+      <div class="info-item">
+        <b>Nome:</b> <span>{{ user.nome }}</span>
       </div>
+      <div class="info-item">
+        <b>Email:</b> <span>{{ user.email }}</span>
+      </div>
+      <div class="info-item">
+        <b>CPF:</b> <span>{{ user.cpf }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const nome = ref('O nome vai aqui');
-const endereco = ref('Endereço vai aqui');
+const user = ref({
+  nome: '',
+  email: '',
+  cpf: ''
+});
+
+onMounted(() => {
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  if (userData) {
+    user.value = {
+      nome: userData.nome,
+      email: userData.email,
+      cpf: userData.cpf
+    };
+  }
+});
 </script>
 
 <style>
@@ -30,9 +47,8 @@ const endereco = ref('Endereço vai aqui');
   font-family: Arial, sans-serif;
 }
 
-h1 {
+.logo-container {
   margin-bottom: 20px;
-  color: #333;
 }
 
 .perfil-info {

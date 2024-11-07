@@ -3,6 +3,8 @@ import Home from '../views/Home.vue'
 import Cadastro from '../views/Cadastro.vue'
 import Login from '../views/Login.vue'
 import Perfil from '../views/Perfil.vue'
+import Cadastro_Incidente from '@/views/Cadastro_Incidente.vue'
+import Incidentes_view from '@/views/Incidentes_view.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +30,18 @@ const router = createRouter({
       path: '/perfil',
       name: 'perfil',
       component: Perfil,
+      meta: { requiresAuth: true } // Example protected route
+    },
+    {
+      path: '/cadastro_incidente',
+      name: 'cadastro_incidente',
+      component: Cadastro_Incidente,
+      meta: { requiresAuth: true } // Example protected route
+    },
+    {
+      path: '/incidentes_view',
+      name: 'incidentes_view',
+      component: Incidentes_view,
       meta: { requiresAuth: true } // Example protected route
     },
   ]

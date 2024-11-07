@@ -15,18 +15,19 @@
         <p v-if="errors.nome" class="error">{{ errors.nome }}</p>
       </div>
       <div class="form-group">
-        <span>Endereço</span>
-        <input type="text" v-model="formData.endereco">
-      </div>
-      <div class="form-group">
-        <span>Celular</span>
-        <input type="text" v-model="formData.celular" @blur="validateCelular">
-        <p v-if="errors.celular" class="error">{{ errors.celular }}</p>
+        <span>CPF</span>
+        <input type="text" v-model="formData.cpf" @blur="validateCPF">
+        <p v-if="errors.cpf" class="error">{{ errors.cpf }}</p>
       </div>
       <div class="form-group">
         <span>Senha</span>
         <input type="password" v-model="formData.senha" @blur="validateSenha">
         <p v-if="errors.senha" class="error">{{ errors.senha }}</p>
+      </div>
+      <div class="form-group">
+        <span>Confirmar Senha</span>
+        <input type="password" v-model="formData.confirmSenha" @blur="validateConfirmSenha">
+        <p v-if="errors.confirmSenha" class="error">{{ errors.confirmSenha }}</p>
       </div>
       <button @click="cadastrar" class="submit-button">Cadastrar</button>
     </div>
@@ -39,9 +40,9 @@ import { ref } from 'vue';
 const formData = ref({
   email: '',
   nome: '',
-  endereco: '',
-  celular: '',
-  senha: ''
+  cpf: '',
+  senha: '',
+  confirmSenha: ''
 });
 
 const errors = ref({});
@@ -67,15 +68,15 @@ function validateNome() {
   }
 }
 
-function validateCelular() {
-  const celular = formData.value.celular;
-  const celularPattern = /^\(\d{2}\) \d{5}-\d{4}$/; // Exemplo: (12) 34567-8901
-  if (!celular) {
-    errors.value.celular = 'Celular é obrigatório.';
-  } else if (!celularPattern.test(celular)) {
-    errors.value.celular = 'Formato inválido. Use (XX) XXXXX-XXXX';
+function validateCPF() {
+  const cpf = formData.value.cpf;
+  const cpfPattern = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/; // Exemplo: 123.456.789-00
+  if (!cpf) {
+    errors.value.cpf = 'CPF é obrigatório.';
+  } else if (!cpfPattern.test(cpf)) {
+    errors.value.cpf = 'Formato inválido. Use XXX.XXX.XXX-XX';
   } else {
-    errors.value.celular = '';
+    errors.value.cpf = '';
   }
 }
 
@@ -90,18 +91,31 @@ function validateSenha() {
   }
 }
 
+function validateConfirmSenha() {
+  const confirmSenha = formData.value.confirmSenha;
+  const senha = formData.value.senha;
+  if (!confirmSenha) {
+    errors.value.confirmSenha = 'Confirmação de senha é obrigatória.';
+  } else if (confirmSenha !== senha) {
+    errors.value.confirmSenha = 'As senhas não coincidem.';
+  } else {
+    errors.value.confirmSenha = '';
+  }
+}
+
 function cadastrar() {
   validateEmail();
   validateNome();
-  validateCelular();
+  validateCPF();
   validateSenha();
+  validateConfirmSenha();
 
   if (Object.values(errors.value).some(error => error)) {
     alert('Por favor, corrija os erros antes de cadastrar.');
     return;
   }
 
-  const { email, nome, endereco, celular, senha } = formData.value;
+  const { email, nome, cpf, senha } = formData.value;
   const users = JSON.parse(localStorage.getItem('users')) || {};
 
   if (users[email]) {
@@ -112,8 +126,7 @@ function cadastrar() {
   const newUser = {
     email,
     nome,
-    endereco,
-    celular,
+    cpf,
     senha
   };
   
@@ -123,9 +136,9 @@ function cadastrar() {
   formData.value = {
     email: '',
     nome: '',
-    endereco: '',
-    celular: '',
-    senha: ''
+    cpf: '',
+    senha: '',
+    confirmSenha: ''
   };
 
   alert('Usuário cadastrado com sucesso!');
