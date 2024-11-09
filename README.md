@@ -18,6 +18,9 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+###
+npm install leaflet.heat
+
 ```sh
 npm run dev
 ```
