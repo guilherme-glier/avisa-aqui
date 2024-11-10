@@ -6,7 +6,7 @@
     <div class="form-container">
       <div class="form-group">
         <span>Categoria</span>
-        <select v-model="formData.categoria" @change="changeCategoria">
+        <select v-model="formData.ref_category" @change="changeCategoria">
           <option value="" disabled selected>Selecione uma categoria</option>
           <!-- Preenchendo a combo box com categorias -->
           <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
@@ -21,26 +21,26 @@
         <div v-if="campoDescricao">
           <input
             v-if="campoDescricao.type === 'TEXT'"
-            v-model="formData.descricao"
+            v-model="formData.value"
             type="text"
             @blur="validateDescricao"
           />
           <input
             v-if="campoDescricao.type === 'INT'"
-            v-model="formData.descricao"
+            v-model="formData.value"
             type="number"
             @blur="validateDescricao"
           />
           <input
             v-if="campoDescricao.type === 'FLOAT'"
-            v-model="formData.descricao"
+            v-model="formData.value"
             type="number"
             step="0.01"
             @blur="validateDescricao"
           />
           <select
             v-if="campoDescricao.type === 'LOGIC'"
-            v-model="formData.descricao"
+            v-model="formData.value"
             @blur="validateDescricao"
           >
             <option value="0">Não</option>
@@ -70,12 +70,11 @@ let config = {
 };
 
 const formData = ref({
-  categoria: '',
-  descricao: '',
+  ref_category: '',
+  value: '',
   latitude: null,
   longitude: null,
-  dataHora: null,
-  usuario: null
+  ref_user: null
 });
 
 let categorias = ref([]); // Para armazenar as categorias
@@ -112,10 +111,10 @@ async function getCategorias() {
 
 // Função para mudar o campo "Descrição" com base no tipo da categoria selecionada
 function changeCategoria() {
-  const categoriaSelecionada = categorias.value.find(categoria => categoria.id === formData.value.categoria);
+  const categoriaSelecionada = categorias.value.find(categoria => categoria.id === formData.value.ref_category);
   
   // Limpar campo descrição ao mudar de categoria
-  formData.value.descricao = '';
+  formData.value.value = '';
   
   if (categoriaSelecionada) {
     campoDescricao.value = {
@@ -128,9 +127,9 @@ function changeCategoria() {
 
 // Validação do campo Descrição com base na regex
 function validateDescricao() {
-  const descricao = formData.value.descricao;
+  const descricao = formData.value.value;
   if (!descricao) {
-    errors.value.descricao = 'Descrição é obrigatória.';
+    errors.value.value = 'Descrição é obrigatória.';
     return;
   }
 
@@ -138,21 +137,21 @@ function validateDescricao() {
   if (campoDescricao.value && campoDescricao.value.validation) {
     const regex = new RegExp(campoDescricao.value.validation);
     if (!regex.test(descricao)) {
-      errors.value.descricao = 'Descrição inválida.';
+      errors.value.value = 'Descrição inválida.';
       return;
     }
   }
 
   // Se passou na validação
-  errors.value.descricao = '';
+  errors.value.value = '';
 }
 
 // Validação e cadastro de incidentes
 function validateCategoria() {
-  if (!formData.value.categoria) {
-    errors.value.categoria = 'Categoria é obrigatória.';
+  if (!formData.value.ref_category) {
+    errors.value.ref_category = 'Categoria é obrigatória.';
   } else {
-    errors.value.categoria = '';
+    errors.value.ref_category = '';
   }
 }
 
@@ -169,11 +168,10 @@ async function cadastrarIncidente() {
     const { latitude, longitude } = await coletarLocalizacao();
     formData.value.latitude = latitude;
     formData.value.longitude = longitude;
-    formData.value.dataHora = new Date().toISOString();
 
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData) {
-      formData.value.usuario = userData.email;
+      formData.value.ref_user = userData.email;
     } else {
       alert('Nenhum usuário logado encontrado.');
       return;
@@ -184,12 +182,11 @@ async function cadastrarIncidente() {
     localStorage.setItem('incidents', JSON.stringify(incidents));
 
     formData.value = {
-      categoria: '',
-      descricao: '',
+      ref_category: '',
+      value: '',
       latitude: null,
       longitude: null,
-      dataHora: null,
-      usuario: null
+      ref_user: null
     };
 
     alert('Incidente cadastrado com sucesso!');

@@ -6,8 +6,8 @@
     <h1>Incidentes Registrados</h1>
     <div v-if="userIncidents.length">
       <div class="incident" v-for="(incident, index) in userIncidents" :key="index">
-        <div><b>Categoria:</b> {{ incident.categoria }}</div>
-        <div><b>Descrição:</b> {{ incident.descricao }}</div>
+        <div><b>Categoria:</b> {{ incident.ref_category }}</div>
+        <div><b>Descrição:</b> {{ incident.value }}</div>
         <div><b>Latitude:</b> {{ incident.latitude }}</div>
         <div><b>Longitude:</b> {{ incident.longitude }}</div>
         <button v-if="incident.status === 'ativo'" @click="markAsResolved(index)" class="resolve-button">Resolvido</button>
@@ -41,7 +41,7 @@ function markAsResolved(index) {
 
   // Atualiza o status de todos os incidentes no localStorage
   const updatedIncidents = allIncidents.map(i => 
-    i.userId === incident.userId && i.descricao === incident.descricao ? { ...i, status: 'resolvido' } : i
+    i.userId === incident.userId && i.value === incident.value ? { ...i, status: 'resolvido' } : i
   );
 
   // Atualiza o localStorage com os incidentes atualizados
