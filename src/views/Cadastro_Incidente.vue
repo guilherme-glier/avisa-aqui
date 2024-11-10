@@ -6,7 +6,7 @@
     <div class="form-container">
       <div class="form-group">
         <span>Categoria</span>
-        <select v-model="formData.categoria">
+        <select v-model="formData.categoria" @change="changeCategoria">
           <option value="" disabled selected>Selecione uma categoria</option>
           <!-- Preenchendo a combo box com categorias -->
           <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
@@ -15,11 +15,41 @@
         </select>
         <p v-if="errors.categoria" class="error">{{ errors.categoria }}</p>
       </div>
+      
       <div class="form-group">
-        <span>Descrição</span>
-        <textarea v-model="formData.descricao" @blur="validateDescricao" rows="3"></textarea>
+        <span>Informações</span>
+        <div v-if="campoDescricao">
+          <input
+            v-if="campoDescricao.type === 'TEXT'"
+            v-model="formData.descricao"
+            type="text"
+            @blur="validateDescricao"
+          />
+          <input
+            v-if="campoDescricao.type === 'INT'"
+            v-model="formData.descricao"
+            type="number"
+            @blur="validateDescricao"
+          />
+          <input
+            v-if="campoDescricao.type === 'FLOAT'"
+            v-model="formData.descricao"
+            type="number"
+            step="0.01"
+            @blur="validateDescricao"
+          />
+          <select
+            v-if="campoDescricao.type === 'LOGIC'"
+            v-model="formData.descricao"
+            @blur="validateDescricao"
+          >
+            <option value="0">Não</option>
+            <option value="1">Sim</option>
+          </select>
+        </div>
         <p v-if="errors.descricao" class="error">{{ errors.descricao }}</p>
       </div>
+      
       <button @click="cadastrarIncidente" class="submit-button">Cadastrar Incidente</button>
     </div>
   </div>
@@ -50,6 +80,7 @@ const formData = ref({
 
 let categorias = ref([]); // Para armazenar as categorias
 const errors = ref({});
+const campoDescricao = ref(null); // Para armazenar as configurações do campo descrição
 
 // Função para buscar as categorias da API
 async function getCategorias() {
@@ -62,11 +93,12 @@ async function getCategorias() {
 
     // Se response.data for um objeto com a chave "data" que contém um array:
     if (response.data && response.data.data) {
-      // Converte response.data.data para um array e mapeia para extrair o id e a description
+      // Converte response.data.data para um array e mapeia para extrair o id, description, validation, type
       categorias.value = response.data.data.map(item => ({
-        id: item.id,          // O ID será o valor da opção
+        id: item.id, // O ID será o valor da opção
         description: item.description, // A descrição será o texto visível
-        validation: item.type
+        validation: item.regex_validation,
+        type: item.type.toUpperCase() // Garantir que o tipo seja maiúsculo
       }));
     } else {
       console.error('Estrutura inesperada de dados:', response.data);
@@ -78,20 +110,49 @@ async function getCategorias() {
   }
 }
 
+// Função para mudar o campo "Descrição" com base no tipo da categoria selecionada
+function changeCategoria() {
+  const categoriaSelecionada = categorias.value.find(categoria => categoria.id === formData.value.categoria);
+  
+  // Limpar campo descrição ao mudar de categoria
+  formData.value.descricao = '';
+  
+  if (categoriaSelecionada) {
+    campoDescricao.value = {
+      type: categoriaSelecionada.type,
+      validation: categoriaSelecionada.validation
+    };
+    validateDescricao(); // Validar logo após a seleção da categoria
+  }
+}
+
+// Validação do campo Descrição com base na regex
+function validateDescricao() {
+  const descricao = formData.value.descricao;
+  if (!descricao) {
+    errors.value.descricao = 'Descrição é obrigatória.';
+    return;
+  }
+
+  // Caso haja uma regex para validação, utilizamos ela
+  if (campoDescricao.value && campoDescricao.value.validation) {
+    const regex = new RegExp(campoDescricao.value.validation);
+    if (!regex.test(descricao)) {
+      errors.value.descricao = 'Descrição inválida.';
+      return;
+    }
+  }
+
+  // Se passou na validação
+  errors.value.descricao = '';
+}
+
 // Validação e cadastro de incidentes
 function validateCategoria() {
   if (!formData.value.categoria) {
     errors.value.categoria = 'Categoria é obrigatória.';
   } else {
     errors.value.categoria = '';
-  }
-}
-
-function validateDescricao() {
-  if (!formData.value.descricao) {
-    errors.value.descricao = 'Descrição é obrigatória.';
-  } else {
-    errors.value.descricao = '';
   }
 }
 
@@ -187,7 +248,7 @@ onMounted(() => {
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 400px;
 }
 
 .form-group {
@@ -200,7 +261,7 @@ span {
   font-weight: bold;
 }
 
-select, textarea {
+select, textarea, input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -208,7 +269,7 @@ select, textarea {
   box-sizing: border-box;
 }
 
-textarea:focus, select:focus {
+textarea:focus, select:focus, input:focus {
   border-color: #565173;
   outline: none;
 }
