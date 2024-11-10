@@ -6,11 +6,12 @@
     <div class="form-container">
       <div class="form-group">
         <span>Categoria</span>
-        <select v-model="formData.categoria" @change="validateCategoria">
+        <select v-model="formData.categoria">
           <option value="" disabled selected>Selecione uma categoria</option>
-          <option>Falta de água</option>
-          <option>Falta de luz</option>
-          <option>Animal na pista</option>
+          <!-- Preenchendo a combo box com categorias -->
+          <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+            {{ categoria.description }}
+          </option>
         </select>
         <p v-if="errors.categoria" class="error">{{ errors.categoria }}</p>
       </div>
@@ -25,7 +26,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+// Configuração para URL da API e headers
+let config = {
+  method: 'get',
+  maxBodyLength: Infinity,
+  url: `${import.meta.env.VITE_API_API_URL}categories`,
+  headers: { 
+    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`
+  }
+};
 
 const formData = ref({
   categoria: '',
@@ -33,12 +45,40 @@ const formData = ref({
   latitude: null,
   longitude: null,
   dataHora: null,
-  usuario: null,  // Campo para armazenar o usuário logado
-  status: 'ativo' // Novo campo para indicar se o incidente está ativo
+  usuario: null
 });
 
+let categorias = ref([]); // Para armazenar as categorias
 const errors = ref({});
 
+// Função para buscar as categorias da API
+async function getCategorias() {
+  try {
+    console.log('Configuração de API:', config);
+    let response = await axios.request(config);
+
+    // Verifique a estrutura dos dados
+    console.log('Dados da API:', response.data);
+
+    // Se response.data for um objeto com a chave "data" que contém um array:
+    if (response.data && response.data.data) {
+      // Converte response.data.data para um array e mapeia para extrair o id e a description
+      categorias.value = response.data.data.map(item => ({
+        id: item.id,          // O ID será o valor da opção
+        description: item.description, // A descrição será o texto visível
+        validation: item.type
+      }));
+    } else {
+      console.error('Estrutura inesperada de dados:', response.data);
+    }
+
+    console.log('Categorias carregadas:', categorias.value);
+  } catch (error) {
+    console.error('Erro ao carregar categorias:', error);
+  }
+}
+
+// Validação e cadastro de incidentes
 function validateCategoria() {
   if (!formData.value.categoria) {
     errors.value.categoria = 'Categoria é obrigatória.';
@@ -55,6 +95,49 @@ function validateDescricao() {
   }
 }
 
+async function cadastrarIncidente() {
+  validateCategoria();
+  validateDescricao();
+
+  if (Object.values(errors.value).some(error => error)) {
+    alert('Por favor, corrija os erros antes de cadastrar o incidente.');
+    return;
+  }
+
+  try {
+    const { latitude, longitude } = await coletarLocalizacao();
+    formData.value.latitude = latitude;
+    formData.value.longitude = longitude;
+    formData.value.dataHora = new Date().toISOString();
+
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData) {
+      formData.value.usuario = userData.email;
+    } else {
+      alert('Nenhum usuário logado encontrado.');
+      return;
+    }
+
+    const incidents = JSON.parse(localStorage.getItem('incidents')) || [];
+    incidents.push({ ...formData.value, status: 'ativo' });
+    localStorage.setItem('incidents', JSON.stringify(incidents));
+
+    formData.value = {
+      categoria: '',
+      descricao: '',
+      latitude: null,
+      longitude: null,
+      dataHora: null,
+      usuario: null
+    };
+
+    alert('Incidente cadastrado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao cadastrar incidente:', error);
+  }
+}
+
+// Coleta localização e carrega categorias ao montar o componente
 async function coletarLocalizacao() {
   return new Promise((resolve, reject) => {
     if (navigator.geolocation) {
@@ -77,50 +160,9 @@ async function coletarLocalizacao() {
   });
 }
 
-async function cadastrarIncidente() {
-  validateCategoria();
-  validateDescricao();
-
-  if (Object.values(errors.value).some(error => error)) {
-    alert('Por favor, corrija os erros antes de cadastrar o incidente.');
-    return;
-  }
-
-  try {
-    const { latitude, longitude } = await coletarLocalizacao();
-    formData.value.latitude = latitude;
-    formData.value.longitude = longitude;
-    formData.value.dataHora = new Date().toISOString();
-
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (userData) {
-      formData.value.usuario = userData.email;  // Armazena o email do usuário logado
-    } else {
-      alert('Nenhum usuário logado encontrado.');
-      return;
-    }
-
-    // Adiciona o incidente com status 'ativo' ao localStorage
-    const incidents = JSON.parse(localStorage.getItem('incidents')) || [];
-    incidents.push({ ...formData.value });
-    localStorage.setItem('incidents', JSON.stringify(incidents));
-
-    // Limpa os campos do formulário
-    formData.value = {
-      categoria: '',
-      descricao: '',
-      latitude: null,
-      longitude: null,
-      dataHora: null,
-      usuario: null,
-      status: 'ativo' // Redefine o status ao valor inicial
-    };
-
-    alert('Incidente cadastrado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao cadastrar incidente:', error);
-  }
-}
+onMounted(() => {
+  getCategorias();
+});
 </script>
 
 <style>
