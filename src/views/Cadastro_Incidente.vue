@@ -155,6 +155,16 @@ function validateCategoria() {
   }
 }
 
+// Configuração para a URL de cadastro de incidentes
+let configCadastro = {
+  method: 'post',
+  url: `${import.meta.env.VITE_API_API_URL}incidents`,
+  headers: { 
+    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`,
+    'Content-Type': 'application/json'
+  }
+};
+
 async function cadastrarIncidente() {
   validateCategoria();
   validateDescricao();
@@ -166,21 +176,39 @@ async function cadastrarIncidente() {
 
   try {
     const { latitude, longitude } = await coletarLocalizacao();
+    let responseIp = await axios.get( 'https://api.ipify.org?format=json' );
+    formData.value.ref_user = 2;
+    formData.value.ref_vendor_id = responseIp.data.ip+'_'+formData.value.ref_user,
     formData.value.latitude = latitude;
     formData.value.longitude = longitude;
 
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (userData) {
-      formData.value.ref_user = userData.email;
+
+    console.log(formData.value.ref_vendor_id);
+
+    
+
+    // Configura os dados para o corpo da requisição
+    const requestData = {
+      ref_user: formData.value.ref_user,
+      ref_vendor_id: formData.value.ref_vendor_id,
+      ref_category: formData.value.ref_category,
+      latitude: formData.value.latitude,
+      longitude: formData.value.longitude,
+      value: formData.value.value
+    };
+
+    // Realiza a requisição POST para a API
+    const response = await axios.post(configCadastro.url, requestData, { headers: configCadastro.headers });
+
+    // Verifica se a resposta indica sucesso
+    if (response.status === 201 || response.status === 200) {
+      alert('Incidente cadastrado com sucesso!');
     } else {
-      alert('Nenhum usuário logado encontrado.');
-      return;
+      console.error('Erro ao cadastrar incidente:', response);
+      alert('Ocorreu um erro ao cadastrar o incidente.');
     }
 
-    const incidents = JSON.parse(localStorage.getItem('incidents')) || [];
-    incidents.push({ ...formData.value, status: 'ativo' });
-    localStorage.setItem('incidents', JSON.stringify(incidents));
-
+    // Limpa o formulário
     formData.value = {
       ref_category: '',
       value: '',
@@ -189,11 +217,12 @@ async function cadastrarIncidente() {
       ref_user: null
     };
 
-    alert('Incidente cadastrado com sucesso!');
   } catch (error) {
     console.error('Erro ao cadastrar incidente:', error);
+    alert('Erro ao cadastrar incidente. Verifique o console para mais detalhes.');
   }
 }
+
 
 // Coleta localização e carrega categorias ao montar o componente
 async function coletarLocalizacao() {

@@ -5,12 +5,12 @@
     </div>
     <div class="login-form">
       <div class="form-group">
-        <span>Email:</span>
-        <input type="text" v-model="email" class="input-field">
+        <span>document:</span>
+        <input type="text" v-model="document" class="input-field">
       </div>
       <div class="form-group">
-        <span>Senha:</span>
-        <input type="password" v-model="senha" class="input-field">
+        <span>password:</span>
+        <input type="password" v-model="password" class="input-field">
       </div>
       <button @click="login" class="login-button">Entrar</button>
     </div>
@@ -19,22 +19,48 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
 
-const email = ref('');
-const senha = ref('');
+const document = ref('');
+const password = ref('');
 
-function login() {
-  const users = JSON.parse(localStorage.getItem('users')) || {};
-  const foundUser = users[email.value];
+let configLogin = {
+  url: `${import.meta.env.VITE_API_API_URL}login`,
+  headers: { 
+    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`,
+    'Content-Type': 'application/json'
+  }
+};
 
-  if (foundUser && foundUser.senha === senha.value) {
+async function login() {
+
+  const requestData = {
+      document: document.value,
+      password: password.value
+    };
+
+    let response = null;
+    try
+    {
+      response = await axios.post(configLogin.url, { document: document.value, password: password.value } , { headers: configLogin.headers });
+    }
+    catch( e )
+    {
+      console.log( e);
+    }
+    // Realiza a requisição POST para a API
+    
+
+    console.log(response);
+
+  /*if (foundUser && foundUser.password === password.value) {
     localStorage.setItem('isLoggedIn', 'true'); // Marca o usuário como logado
-    localStorage.setItem('userData', JSON.stringify(foundUser));
     alert('Login realizado com sucesso!');
     window.location.reload();
   } else {
-    alert('Email ou senha incorretos.');
-  }
+    alert('document ou password incorretos.');
+  }*/
+
 }
 </script>
 

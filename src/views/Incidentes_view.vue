@@ -10,7 +10,7 @@
         <div><b>Descrição:</b> {{ incident.value }}</div>
         <div><b>Latitude:</b> {{ incident.latitude }}</div>
         <div><b>Longitude:</b> {{ incident.longitude }}</div>
-        <button v-if="incident.status === 'ativo'" @click="markAsResolved(index)" class="resolve-button">Resolvido</button>
+        <button v-if="incident.status === 'ativo'" @click="markAsResolved(incident.id)" class="resolve-button">Resolvido</button>
       </div>
     </div>
     <div v-else>
@@ -21,35 +21,58 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 const user = JSON.parse(localStorage.getItem('userData'));
 const userIncidents = ref([]);
 
+// Configuração para obter incidentes da API
+let configGetIncidents = {
+  method: 'get',
+  url: `${import.meta.env.VITE_API_API_URL}incidents`,
+  headers: { 
+    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`
+  }
+};
+
 // Carrega os incidentes ao montar o componente
-onMounted(() => {
-  const allIncidents = JSON.parse(localStorage.getItem('incidents')) || [];
-  // Filtra os incidentes ativos para o usuário logado
-  userIncidents.value = allIncidents.filter(incident => incident.userId === user.id && incident.status === 'ativo');
-});
+async function loadIncidents() {
+  try {
+    const response = await axios.request(configGetIncidents);
+
+    // Filtra os incidentes ativos do usuário logado
+    userIncidents.value = response.data.filter(
+      incident => incident.ref_user === user.email && incident.status === 'true'
+    );
+  } catch (error) {
+    console.error('Erro ao carregar incidentes:', error);
+    alert('Erro ao carregar incidentes. Verifique o console para mais detalhes.');
+  }
+}
 
 // Função para marcar o incidente como resolvido
-function markAsResolved(index) {
-  const incident = userIncidents.value[index];
-  incident.status = 'resolvido';
+async function markAsResolved(incidentId) {
+  try {
+    // Configuração para a requisição de atualização de incidente
+    await axios.patch(`${configGetIncidents.url}/${incidentId}`, {
+      status: 'resolvido'
+    }, {
+      headers: configGetIncidents.headers
+    });
 
-  const allIncidents = JSON.parse(localStorage.getItem('incidents')) || [];
-
-  // Atualiza o status de todos os incidentes no localStorage
-  const updatedIncidents = allIncidents.map(i => 
-    i.userId === incident.userId && i.value === incident.value ? { ...i, status: 'resolvido' } : i
-  );
-
-  // Atualiza o localStorage com os incidentes atualizados
-  localStorage.setItem('incidents', JSON.stringify(updatedIncidents));
-
-  // Atualiza a lista de incidentes visíveis
-  userIncidents.value = updatedIncidents.filter(i => i.userId === user.id && i.status === 'ativo');
+    // Atualiza a lista de incidentes visíveis, removendo o resolvido
+    userIncidents.value = userIncidents.value.filter(incident => incident.id !== incidentId);
+    alert('Incidente marcado como resolvido com sucesso!');
+  } catch (error) {
+    console.error('Erro ao marcar incidente como resolvido:', error);
+    alert('Erro ao marcar incidente como resolvido. Verifique o console para mais detalhes.');
+  }
 }
+
+// Monta o componente e carrega os incidentes
+onMounted(() => {
+  loadIncidents();
+});
 </script>
 
 <style>
