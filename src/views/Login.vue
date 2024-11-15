@@ -14,15 +14,20 @@
       </div>
       <button @click="login" class="login-button">Entrar</button>
     </div>
+    <p v-if="errors.descricao" class="error">{{ errors.descricao }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { RouterLink, useRouter } from 'vue-router';
 
 const document = ref('');
 const password = ref('');
+const errors = ref({});
+const router = useRouter();
+
 
 let configLogin = {
   url: `${import.meta.env.VITE_API_API_URL}login`,
@@ -43,15 +48,21 @@ async function login() {
     try
     {
       response = await axios.post(configLogin.url, { document: document.value, password: password.value } , { headers: configLogin.headers });
+      localStorage.setItem('isLoggedIn', 'true'); 
+      console.log(response.data.data.id);
+      localStorage.setItem('id', response.data.data.id);
+      router.push('/');
     }
     catch( e )
     {
-      console.log( e);
+      console.log(e);
+      //alert( e.response.message );
     }
     // Realiza a requisição POST para a API
     
 
-    console.log(response);
+    //console.log(response.response.status);
+
 
   /*if (foundUser && foundUser.password === password.value) {
     localStorage.setItem('isLoggedIn', 'true'); // Marca o usuário como logado

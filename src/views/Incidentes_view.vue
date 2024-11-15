@@ -10,7 +10,7 @@
         <div><b>Descrição:</b> {{ incident.value }}</div>
         <div><b>Latitude:</b> {{ incident.latitude }}</div>
         <div><b>Longitude:</b> {{ incident.longitude }}</div>
-        <button v-if="incident.status === 'ativo'" @click="markAsResolved(incident.id)" class="resolve-button">Resolvido</button>
+        <button @click="markAsResolved(incident.id)" class="resolve-button">Resolvido</button>
       </div>
     </div>
     <div v-else>
@@ -40,29 +40,38 @@ async function loadIncidents() {
   try {
     const response = await axios.request(configGetIncidents);
 
+    // Acessa a lista de incidentes dentro do objeto retornado
+    const incidents = response.data.data || response.data;
+
     // Filtra os incidentes ativos do usuário logado
-    userIncidents.value = response.data.filter(
-      incident => incident.ref_user === user.email && incident.status === 'true'
+    const userId = localStorage.getItem('id');
+
+    userIncidents.value = incidents.filter(
+      incident => incident.ref_user == userId && incident.active === true
     );
+
+
   } catch (error) {
     console.error('Erro ao carregar incidentes:', error);
     alert('Erro ao carregar incidentes. Verifique o console para mais detalhes.');
   }
 }
 
+
 // Função para marcar o incidente como resolvido
 async function markAsResolved(incidentId) {
   try {
     // Configuração para a requisição de atualização de incidente
-    await axios.patch(`${configGetIncidents.url}/${incidentId}`, {
-      status: 'resolvido'
-    }, {
+    let isResolved = await axios.get(`${configGetIncidents.url}/${incidentId}/resolve`,{
       headers: configGetIncidents.headers
     });
 
+    console.log(isResolved);
+
     // Atualiza a lista de incidentes visíveis, removendo o resolvido
-    userIncidents.value = userIncidents.value.filter(incident => incident.id !== incidentId);
     alert('Incidente marcado como resolvido com sucesso!');
+    window.location.reload();
+    
   } catch (error) {
     console.error('Erro ao marcar incidente como resolvido:', error);
     alert('Erro ao marcar incidente como resolvido. Verifique o console para mais detalhes.');

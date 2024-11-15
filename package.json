@@ -13,6 +13,7 @@
     "leaflet": "^1.9.4",
     "leaflet.heat": "^0.2.0",
     "nvm": "^0.0.4",
+    "public-ip": "^7.0.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },

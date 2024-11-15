@@ -84,7 +84,7 @@ onMounted(async () => {
 });
 
 function logout() {
-  localStorage.removeItem('userData');
+  localStorage.removeItem('isLoggedIn');
   router.push('/login'); // Redireciona para a tela de login após logout
 }
 

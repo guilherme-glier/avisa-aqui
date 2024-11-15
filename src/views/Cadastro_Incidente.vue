@@ -177,7 +177,7 @@ async function cadastrarIncidente() {
   try {
     const { latitude, longitude } = await coletarLocalizacao();
     let responseIp = await axios.get( 'https://api.ipify.org?format=json' );
-    formData.value.ref_user = 2;
+    formData.value.ref_user = localStorage.getItem("id");
     formData.value.ref_vendor_id = responseIp.data.ip+'_'+formData.value.ref_user,
     formData.value.latitude = latitude;
     formData.value.longitude = longitude;
