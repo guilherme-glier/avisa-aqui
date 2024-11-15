@@ -70,7 +70,7 @@ router.beforeEach((to, from, next) => {
 })
 
 export function checkAuthenticationStatus() {
-  return !!localStorage.getItem('userData');
+  return !!localStorage.getItem('isLoggedIn');
 }
 
 export default router
