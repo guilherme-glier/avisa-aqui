@@ -16,7 +16,7 @@
       </div>
       <div class="form-group">
         <span>CPF</span>
-        <input type="text" v-model="formData.cpf" @blur="validateCPF">
+        <input type="text" v-model="formData.cpf" @input="applyCpfMask" @blur="validateCPF">
         <p v-if="errors.cpf" class="error">{{ errors.cpf }}</p>
       </div>
       <div class="form-group">
@@ -36,6 +36,16 @@
 
 <script setup>
 import { ref } from 'vue';
+import axios from 'axios';
+
+let configCadastro = {
+  method: 'post',
+  url: `${import.meta.env.VITE_API_API_URL}incidents`,
+  headers: { 
+    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`,
+    'Content-Type': 'application/json'
+  }
+};
 
 const formData = ref({
   email: '',
@@ -70,7 +80,7 @@ function validateNome() {
 
 function validateCPF() {
   const cpf = formData.value.cpf;
-  const cpfPattern = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/; // Exemplo: 123.456.789-00
+  const cpfPattern = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
   if (!cpf) {
     errors.value.cpf = 'CPF é obrigatório.';
   } else if (!cpfPattern.test(cpf)) {
@@ -78,6 +88,14 @@ function validateCPF() {
   } else {
     errors.value.cpf = '';
   }
+}
+
+function applyCpfMask() {
+  let cpf = formData.value.cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+  if (cpf.length > 3) cpf = cpf.replace(/^(\d{3})(\d)/, '$1.$2');
+  if (cpf.length > 6) cpf = cpf.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+  if (cpf.length > 9) cpf = cpf.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+  formData.value.cpf = cpf;
 }
 
 function validateSenha() {
@@ -103,7 +121,11 @@ function validateConfirmSenha() {
   }
 }
 
-function cadastrar() {
+function removeCpfMask(cpf) {
+  return cpf.replace(/\D/g, '');
+}
+
+async function cadastrar() {
   validateEmail();
   validateNome();
   validateCPF();
@@ -115,33 +137,36 @@ function cadastrar() {
     return;
   }
 
-  const { email, nome, cpf, senha } = formData.value;
-  const users = JSON.parse(localStorage.getItem('users')) || {};
+  const cpfWithoutMask = removeCpfMask(formData.value.cpf);
 
-  if (users[email]) {
-    alert('Email já cadastrado.');
-    return;
+  try {
+    console.log(formData.value);
+    console.log(cpfWithoutMask);
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_API_URL}users`,
+      {
+        name: formData.value.nome,
+        email: formData.value.email,
+        document: cpfWithoutMask,
+        password: formData.value.senha
+      },
+      { headers: configCadastro.headers });
+
+    console.log(response.data);
+    alert('Usuário cadastrado com sucesso!');
+
+    formData.value = {
+      email: '',
+      nome: '',
+      cpf: '',
+      senha: '',
+      confirmSenha: ''
+    };
+  } catch (error) {
+    console.error('Erro ao cadastrar usuário:', error);
+    alert('Erro ao cadastrar usuário. Verifique o console para mais detalhes.');
   }
-
-  const newUser = {
-    email,
-    nome,
-    cpf,
-    senha
-  };
-  
-  users[email] = newUser;
-  localStorage.setItem('users', JSON.stringify(users));
-
-  formData.value = {
-    email: '',
-    nome: '',
-    cpf: '',
-    senha: '',
-    confirmSenha: ''
-  };
-
-  alert('Usuário cadastrado com sucesso!');
 }
 </script>
 
