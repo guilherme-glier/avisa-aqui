@@ -7,11 +7,14 @@ import mkcert from'vite-plugin-mkcert'
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    https: true
+    https: true,
   },
   plugins: [
     vue(),
-    mkcert(),
+    mkcert({
+      force: true,
+      autoUpgrade: true,
+    }),
   ],
   resolve: {
     alias: {
