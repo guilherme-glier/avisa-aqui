@@ -38,7 +38,7 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
 .perfil {
   display: flex;
   flex-direction: column;

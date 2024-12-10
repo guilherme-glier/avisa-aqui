@@ -20,7 +20,7 @@ let userLocation = ref({ lat: 10.0217445, lng: 104.009865 }); // Coordenadas pad
 let config = {
   method: 'get',
   maxBodyLength: Infinity,
-  url: `${import.meta.env.VITE_API_API_URL}incidents`,
+  url: `${import.meta.env.VITE_API_API_URL}/incidents`,
   headers: { 
     'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`
   }
@@ -54,7 +54,8 @@ async function coletarLocalizacao() {
 function initializeMap(lat, lng) {
   const mapOptions = {
     center: [lat, lng],
-    zoom: 10,
+    zoom: 11,
+    scrollWheelZoom: false,
   };
   map = new LeafLet.map('map', mapOptions);
 

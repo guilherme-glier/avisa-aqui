@@ -40,7 +40,7 @@ import axios from 'axios';
 
 let configCadastro = {
   method: 'post',
-  url: `${import.meta.env.VITE_API_API_URL}incidents`,
+  url: `${import.meta.env.VITE_API_API_URL}/incidents`,
   headers: { 
     'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`,
     'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ async function cadastrar() {
     console.log(cpfWithoutMask);
 
     const response = await axios.post(
-      `${import.meta.env.VITE_API_API_URL}users`,
+      `${import.meta.env.VITE_API_API_URL}/users`,
       {
         name: formData.value.nome,
         email: formData.value.email,
@@ -170,7 +170,7 @@ async function cadastrar() {
 }
 </script>
 
-<style>
+<style scoped>
 .cadastro {
   display: flex;
   flex-direction: column;

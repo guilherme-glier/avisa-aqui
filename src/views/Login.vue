@@ -30,7 +30,7 @@ const router = useRouter();
 
 
 let configLogin = {
-  url: `${import.meta.env.VITE_API_API_URL}login`,
+  url: `${import.meta.env.VITE_API_API_URL}/login`,
   headers: { 
     'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`,
     'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ async function login() {
 }
 </script>
 
-<style>
+<style scoped>
 .login {
   display: flex;
   flex-direction: column;

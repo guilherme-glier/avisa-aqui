@@ -1,15 +1,25 @@
-@import './base.css';
+/* @import './base.css'; */
 
-header {
+#main-home {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#header {
   position: relative;
-  z-index: 1000;
+  z-index: 1;
   background: white;
-  height: 150px;
+  height: 100px;
   padding: 20px;
 }
 
 #map {
-  height: calc(100vh - 150px);
-  width: 100vw;
-  margin-top: 150px;
+  min-height: calc(80vh - 100px);
+  height: 100%;
+  width: 100%;
+}
+
+.g-sidenav-pinned .sidenav-footer {
+  margin-bottom: 1rem !important;
 }

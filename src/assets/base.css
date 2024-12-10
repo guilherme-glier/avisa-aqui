@@ -5,7 +5,7 @@
   margin: 0;
   font-weight: normal;
 }
-
+/* 
 @font-face {
   font-family: "Inter";
   font-weight: 400;
@@ -22,13 +22,13 @@
   font-family: "Inter";
   font-weight: 600;
   src: url('./fonts/Inter-Bold.ttf')
-}
+} */
 
 body {
   min-height: 100vh;
-  line-height: 1.6;
-  font-family: Inter, sans-serif;
-  font-size: 15px;
+  /* line-height: 1.6; */
+  /* font-family: Inter, sans-serif; */
+  /* font-size: 15px; */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -40,6 +40,3 @@ main {
   flex-direction: column;
 }
 
-.map {
-  position: absolute;
-}
