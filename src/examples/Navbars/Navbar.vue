@@ -206,7 +206,7 @@ export default {
 
 <style scoped>
 .navbar-brand-img {
-  height: 5rem;
+  height: 4rem;
   margin-right: 1.5rem;
 }
 </style>
