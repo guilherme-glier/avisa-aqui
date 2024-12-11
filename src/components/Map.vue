@@ -7,7 +7,7 @@ import { onMounted, watch, ref } from 'vue';
 import LeafLet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat';
-import axios from 'axios';
+import api from "@/services/api";
 
 const props = defineProps({
   selectedCategory: String,
@@ -16,15 +16,6 @@ const props = defineProps({
 let map, heatLayer;
 let incidentsAPI = ref([]);
 let userLocation = ref({ lat: 10.0217445, lng: 104.009865 }); // Coordenadas padrão, caso a localização do usuário não seja obtida
-
-let config = {
-  method: 'get',
-  maxBodyLength: Infinity,
-  url: `${import.meta.env.VITE_API_API_URL}/incidents`,
-  headers: { 
-    'Authorization': `Bearer ${import.meta.env.VITE_API_API_TOKEN}`
-  }
-};
 
 // Função para coletar a localização do usuário
 async function coletarLocalizacao() {
@@ -101,13 +92,10 @@ function updateHeatmap() {
 
 async function getIncidents() {
   try {
-    console.log('Configuração de API:', config);
-    let response = await axios.request(config);
+    let response = await api.get('/incidents');
 
-    console.log('Dados da API:', response.data);
-
-    if (response.data && response.data.data) {
-      incidentsAPI.value = response.data.data.map(item => ({
+    if (response.data) {
+      incidentsAPI.value = response.data.map(item => ({
         id: item.id,
         ref_user: item.ref_user,
         ref_category: item.ref_category,
