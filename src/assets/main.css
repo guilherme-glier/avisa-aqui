@@ -1,25 +1,65 @@
-/* @import './base.css'; */
-
-#main-home {
-  height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-#header {
-  position: relative;
-  z-index: 1;
-  background: white;
-  height: 100px;
-  padding: 20px;
-}
-
-#map {
-  min-height: calc(80vh - 100px);
-  height: 100%;
-  width: 100%;
+.disabled-btn {
+  pointer-events: none;
+  text-decoration: none;
+  cursor: default;
+  opacity: 0.7;
 }
 
 .g-sidenav-pinned .sidenav-footer {
   margin-bottom: 1rem !important;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.vfm {
+  z-index: 9999999 !important;
+}
+
+.custom-select {
+  padding-top: 0.188rem !important;
+  padding-bottom: 0.188rem !important;
+}
+
+.custom-select .vs__dropdown-toggle {
+  border: none !important;
+}
+
+.custom-select input::placeholder {
+  color: #adb5bd;
+  font-size: 15px;
+}
+
+.rounded-lg {
+  border-radius: 1rem;
+}
+
+.success-message-icon {
+  width: 50px;
+  height: 50px;
+  background: #17ad37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 28px;
+}
+
+.success-message-text {
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.4rem;
+  color: #17ad37;
+  line-height: 1.5;
 }

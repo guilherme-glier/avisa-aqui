@@ -1,11 +1,3 @@
-<!-- <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-</script>
-
-<template>
-  <RouterView />
-</template> -->
-
 <template>
   <sidenav
     :custom_class="this.$store.state.mcolor"
@@ -29,6 +21,7 @@ import { RouterLink, RouterView } from 'vue-router'
     <router-view />
     <app-footer v-show="this.$store.state.showFooter" />
   </main>
+  <ModalsContainer />
 </template>
 <script>
 import Sidenav from "@/examples/Sidenav/index.vue";
@@ -36,6 +29,8 @@ import Configurator from "@/examples/Configurator.vue";
 import Navbar from "@/examples/Navbars/Navbar.vue";
 import AppFooter from "@/examples/Footer.vue";
 import { mapMutations } from "vuex";
+import { ModalsContainer } from 'vue-final-modal';
+
 export default {
   name: "App",
   components: {
@@ -43,6 +38,7 @@ export default {
     Configurator,
     Navbar,
     AppFooter,
+    ModalsContainer,
   },
   methods: {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),

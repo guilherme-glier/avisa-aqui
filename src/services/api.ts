@@ -64,3 +64,4 @@ const apiService = {
 };
 
 export default apiService;
+export const httpClient = axios;

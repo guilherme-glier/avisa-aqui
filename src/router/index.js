@@ -1,8 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Perfil from '@/views/Perfil.vue'
-import CadastroIncidente from '@/views/CadastroIncidente.vue'
-import IncidentesView from '@/views/IncidentesView.vue'
-import Dashboard from '@/views/Dashboard.vue'
+import IncidentList from '@/views/IncidentList.vue'
 import Overview from '@/views/Overview.vue'
 import SignIn from '@/views/SignIn.vue'
 import SignUp from '@/views/SignUp.vue'
@@ -19,11 +16,6 @@ const routes = [
     component: Overview
   },
   {
-    path: '/dash',
-    name: 'dash',
-    component: Dashboard
-  },
-  {
     path: '/sign-in',
     name: 'SignIn',
     component: SignIn,
@@ -36,21 +28,9 @@ const routes = [
     meta: { requiresAuth: false }
   },
   {
-    path: '/perfil',
-    name: 'perfil',
-    component: Perfil,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/cadastro_incidente',
-    name: 'Novo Incidente',
-    component: CadastroIncidente,
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/incidentes',
     name: 'Meus Incidentes',
-    component: IncidentesView,
+    component: IncidentList,
     meta: { requiresAuth: true }
   },
 ];
